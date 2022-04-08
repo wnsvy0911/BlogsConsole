@@ -34,26 +34,45 @@ namespace BlogsConsole
             {
                 return blog;
             }
+            logger.Error("Blog Not Found: " + blogId);
             return null;
         }
 
-        static Post createPostWorkflow(BloggingContext db) {
+        static void listPostsByBlogId(BloggingContext db, Blog blog) {
+            var query = db.Posts.Where(p => p.BlogId == blog.BlogId).ToList();
+            Console.WriteLine("Blog: " + blog.Name);
+            Console.WriteLine("Total Number Of Posts: " + query.Count());
+            foreach (var item in query)
+            {
+                Console.WriteLine(item.PostId + ") " + item.Title);
+            }
+        }
 
-            Console.WriteLine("Please Choose A Blog To Post To.");
-            displayAllBlogs(db, true);
-            var blogId = Console.ReadLine();
-            Blog blog = getBlogById(db, blogId);
-            Console.Write("Enter a title for the new Post:");
+        static Post createPost(BloggingContext db, Blog blog) {
+            Console.Write("Enter the Post title: ");
             var title = Console.ReadLine();
-            Console.Write("Enter content for the new Post");
+            Console.Write("Enter the Post content: ");
             var content = Console.ReadLine();
-            return new Post { Title = title, Content = content };
+            return new Post { BlogId = blog.BlogId, Title = title, Content = content, Blog = blog };
+        }
+
+        static Blog postPreWorkflow(BloggingContext db) {
+            Console.WriteLine("Select the blog you would to post to: ");
+            displayAllBlogs(db, true);
+            var response = Console.ReadLine();
+            if (int.TryParse(response, out int blogId))
+            {
+                return getBlogById(db, blogId);
+            }
+            logger.Error("Not A Valid Blog Id.");
+            return null;
         }
 
         static void displayAllBlogs(BloggingContext db, bool withId) {
             var query = db.Blogs.OrderBy(b => b.Name);
 
-            Console.WriteLine("All blogs in the database:");
+            Console.WriteLine("Select the blog's posts to display:");
+            Console.WriteLine("Total Number Of Blogs: " + query.Count());
             foreach (var item in query)
             {
                 if (withId) {
@@ -71,6 +90,7 @@ namespace BlogsConsole
             {
                 var db = new BloggingContext();
                 string choice = mainMenu();
+                Blog blog;
                 switch (choice)
                 {
                     case "1":
@@ -84,9 +104,14 @@ namespace BlogsConsole
                         break;
                     case "3":
                     // Create Post
+                        blog = postPreWorkflow(db);
+                        var post = createPost(db, blog);
+                        db.Posts.Add(post);
                         break;
                     case "4":
                     // Display Posts
+                        blog = postPreWorkflow(db);
+                        listPostsByBlogId(db, blog);
                         break;
                     case "q":
                     // Exit 

@@ -3,7 +3,6 @@ using NLog.Web;
 using System.IO;
 using System.Linq;
 
-
 namespace BlogsConsole
 {
     class Program
@@ -13,13 +12,12 @@ namespace BlogsConsole
     
 
         static string mainMenu() {
-            Console.Write("Enter your selection:");
-            Console.Write("1) Display all blogs");
-            Console.Write("2) Add Blog");
-            Console.Write("3) Create Post");
-            Console.Write("4) Display Posts");
-            Console.Write("Enter q to quit");
-
+            Console.WriteLine("Enter your selection:");
+            Console.WriteLine("1) Display all blogs");
+            Console.WriteLine("2) Add Blog");
+            Console.WriteLine("3) Create Post");
+            Console.WriteLine("4) Display Posts");
+            Console.WriteLine("Enter q to quit");
             return Console.ReadLine();
         }
 
@@ -30,12 +28,21 @@ namespace BlogsConsole
             return new Blog { Name = name };
         }
 
+        static Blog getBlogById(BloggingContext db, int blogId) {
+            Blog blog = db.Blogs.FirstOrDefault(b => b.BlogId == blogId);
+            if (blog != null)
+            {
+                return blog;
+            }
+            return null;
+        }
+
         static Post createPostWorkflow(BloggingContext db) {
 
             Console.WriteLine("Please Choose A Blog To Post To.");
             displayAllBlogs(db, true);
-            var blogChoice = Console.ReadLine();
-
+            var blogId = Console.ReadLine();
+            Blog blog = getBlogById(db, blogId);
             Console.Write("Enter a title for the new Post:");
             var title = Console.ReadLine();
             Console.Write("Enter content for the new Post");
@@ -49,7 +56,11 @@ namespace BlogsConsole
             Console.WriteLine("All blogs in the database:");
             foreach (var item in query)
             {
-                Console.WriteLine(item.Name);
+                if (withId) {
+                    Console.WriteLine(item.BlogId + ") " + item.Name);
+                } else {
+                    Console.WriteLine(item.Name);
+                }
             }
         }
         static void Main(string[] args)
@@ -65,7 +76,7 @@ namespace BlogsConsole
                     case "1":
                     // Display All Blogs, pass in database context
                         displayAllBlogs(db, false);
-                        displayAllBlogs(db, true);
+                    //  displayAllBlogs(db, true);
                         break;
                     case "2":
                     // Add Blog

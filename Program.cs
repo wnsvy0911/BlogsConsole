@@ -98,44 +98,45 @@ namespace BlogsConsole
             logger.Info("Program started");
             bool run = true;
             while(run) {
-            try
-            {
-                var db = new BloggingContext();
-                string choice = mainMenu();
-                Blog blog;
-                switch (choice)
+                try
                 {
-                    case "1":
-                    // Display All Blogs, pass in database context
-                        displayAllBlogs(db, false);
-                        break;
-                    case "2":
-                    // Add Blog
-                        blog = createBlogWorkflow();
-                         if(isUniqueBlog(db, blog)){
-                            db.AddBlog(blog);
+                    var db = new BloggingContext();
+                    string choice = mainMenu();
+                    Blog blog;
+                    switch (choice)
+                    {
+                        case "1":
+                        // Display All Blogs, pass in database context
+                            displayAllBlogs(db, false);
+                            break;
+                        case "2":
+                        // Add Blog
+                            blog = createBlogWorkflow();
+                            if(isUniqueBlog(db, blog)){
+                                db.AddBlog(blog);
                             } else {
                                 logger.Error("Please Choose a Unique Blog Name");
                             }
-                        break;
-                    case "3":
-                    // Create Post
-                        blog = postPreWorkflow(db);
-                        var post = createPost(db, blog);
-                        db.AddPost(post);
-                        logger.Info("Added Post");
-                        break;
-                    case "4":
-                    // Display Posts
-                        blog = postPreWorkflow(db);
-                        listPostsByBlogId(db, blog);
-                        break;
-                    case "q":
-                    // Exit 
-                        break;
-                    default:
-                        Console.WriteLine("Please Enter A Valid Option.");
-                        break;
+                            break;
+                        case "3":
+                        // Create Post
+                            blog = postPreWorkflow(db);
+                            var post = createPost(db, blog);
+                            db.AddPost(post);
+                            logger.Info("Added Post");
+                            break;
+                        case "4":
+                        // Display Posts
+                            blog = postPreWorkflow(db);
+                            listPostsByBlogId(db, blog);
+                            break;
+                        case "q":
+                        // Exit 
+                            run = false;
+                            break;
+                        default:
+                            Console.WriteLine("Please Enter A Valid Option.");
+                            break;
                     }
 
                 }
